@@ -7,6 +7,8 @@ import Image from "next/image";
 import { useSignIn } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Loader from "@/app/(components)/Loader";
 
 const SignIn = () => {
   const [form, setForm] = useState({
@@ -15,10 +17,15 @@ const SignIn = () => {
   });
 
   const { signIn, setActive, isLoaded } = useSignIn();
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   const onSignInPress = useCallback(async () => {
     if (!isLoaded) {
       return;
     }
+
+    setLoading(true);
 
     try {
       const signInAttempt = await signIn.create({
@@ -28,7 +35,7 @@ const SignIn = () => {
 
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
-        redirect("/user/profile");
+        router.push("/user/profile");
       } else {
         // See https://clerk.com/docs/custom-flows/error-handling
         // for more info on error handling
@@ -37,6 +44,7 @@ const SignIn = () => {
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
     }
+    setLoading(false);
   }, [isLoaded, form.email, form.password]);
 
   return (
@@ -111,13 +119,15 @@ const SignIn = () => {
         <div className={"flex flex-col w-full gap-1"}>
           {/* MAIN SIGN IN BUTTON*/}
           <button
-            className={
-              " text-primary border-2 bg-primary p-2 rounded-xl cursor-pointer border-transparent hover:border-accent flex items-center justify-center gap-2"
-            }
+            className={`text-primary border-2 bg-primary p-2 rounded-xl border-transparent hover:border-accent flex items-center justify-center gap-2 transition duration-100 ${loading && "!bg-gray-700 bg-opacity-70"}`}
             onClick={onSignInPress}
+            disabled={loading}
           >
-            <LogIn className={"text-secondary"} />
-            <p className={"text-lg text-text"}>Sign In</p>
+            {loading ? <Loader /> : <LogIn className={"text-secondary"} />}
+
+            <p className={"text-lg text-text"}>
+              {loading ? "Signing in..." : "Sign In"}
+            </p>
           </button>
           {/* DIVIDER */}
           <hr className={"mt-4"} />

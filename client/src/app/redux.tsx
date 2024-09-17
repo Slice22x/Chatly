@@ -22,6 +22,7 @@ import {
 } from "redux-persist";
 import { PersistGate } from "redux-persist/integration/react";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
+import { Layout } from "lucide-react";
 
 /* REDUX PERSISTENCE */
 const createNoopStorage = () => {

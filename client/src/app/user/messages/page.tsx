@@ -7,9 +7,10 @@ import {
   useFriendsContext,
 } from "@/app/(context)/FriendsProvider";
 import ChatArea from "@/app/(components)/ChatArea";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { LogIn, LogOut, UserRoundPlus } from "lucide-react";
 import Link from "next/link";
+import { useGetChatsQuery } from "@/state/api";
 
 const Messages = () => {
   const { selectedFriend, setSelectedFriend } = useFriendsContext();

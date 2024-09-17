@@ -9,6 +9,7 @@ type props = {
 
 const messages = [
   { sender: "zubair.m7", message: "Yo bro" },
+  /*
   { sender: "zubair.m7", message: "Have you done the fm hw?" },
   { sender: "davidu22x", message: "Yh man ofc" },
   { sender: "zubair.m7", message: "Can u send it rq man" },
@@ -33,7 +34,7 @@ const messages = [
   {
     sender: "zubair.m7",
     message: "Trust me this time I'll make sure we don't get clocked",
-  },
+  },*/
 ];
 
 const ChatArea = ({ name }: props) => {

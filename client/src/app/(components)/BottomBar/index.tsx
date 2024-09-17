@@ -1,24 +1,18 @@
 "use client";
 import React from "react";
 import NavigationIcon from "@/app/(components)/NavigationIcon";
-import {
-  CircleUser,
-  Home,
-  ImageIcon,
-  LogIn,
-  LogOut,
-  Send,
-  Users,
-} from "lucide-react";
+import { CircleUser, Home, ImageIcon, LogIn, LogOut, Send } from "lucide-react";
 import { useMediaQuery } from "@/app/(components)/hooks/hooks";
 import Image from "next/image";
 import defaultProfile from "@/assets/no-profile.svg";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 
 const BottomBar = () => {
   const isBelowMdScreen = useMediaQuery("(max-width: 768px)");
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
+  const { signOut } = useClerk();
 
   return (
     <div className={"w-full"}>
@@ -32,7 +26,6 @@ const BottomBar = () => {
             <NavigationIcon
               image={<Home className={"text-primary"} />}
               name={"home"}
-              link={"/"}
             />
             <NavigationIcon
               image={<ImageIcon className={"text-primary"} />}
@@ -57,8 +50,13 @@ const BottomBar = () => {
           >
             {isSignedIn ? (
               <>
-                <LogOut />
-                <p className={"hidden lg:inline-block text-text"}>Sign Out</p>
+                <button
+                  className={"flex items-center justify-center gap-2"}
+                  onClick={() => signOut({ redirectUrl: "/auth/sign-in" })}
+                >
+                  <LogOut />
+                  <p className={"hidden lg:inline-block text-text"}>Sign Out</p>
+                </button>
               </>
             ) : (
               <>
@@ -81,7 +79,6 @@ const BottomBar = () => {
               <NavigationIcon
                 image={<Home className={"text-primary"} />}
                 name={"home"}
-                link={"/"}
               />
               <NavigationIcon
                 image={<ImageIcon className={"text-primary"} />}
@@ -112,8 +109,12 @@ const BottomBar = () => {
                     "hidden lg:inline-block flex-col items-center justify-center"
                   }
                 >
-                  <p className={"mt-1.5 line-clamp-1"}>Default User</p>
-                  <p className={"-mt-1 text-sm text-gray-400"}>Name</p>
+                  <p className={"mt-1.5 line-clamp-1"}>
+                    {isSignedIn ? user?.firstName : "Default User"}
+                  </p>
+                  <p className={"-mt-1 text-sm text-gray-400"}>
+                    @{isSignedIn ? user?.username : "Default User"}
+                  </p>
                 </div>
               </Link>
             </div>

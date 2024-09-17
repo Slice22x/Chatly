@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   BadgeCheck,
   CircleX,
+  LogIn,
   Mail,
   SquareAsterisk,
   Tag,
@@ -22,7 +23,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { router } from "next/client";
+import Loader from "@/assets/tube-spinner.svg";
 import { useCreateUsersMutation } from "@/state/api";
 
 const SignUp = () => {
@@ -34,6 +35,7 @@ const SignUp = () => {
   const showDialog = searchParams.get("showDialog");
   const [code, setCode] = useState("");
   const [createUser] = useCreateUsersMutation();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (showDialog === "true") {
@@ -46,7 +48,7 @@ const SignUp = () => {
   const onPressVerify = async () => {
     if (!isLoaded) return;
 
-    console.log(signUp);
+    setLoading(true);
 
     try {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
@@ -65,10 +67,13 @@ const SignUp = () => {
           username: form.username,
           bio: "",
           clerkId: completeSignUp.id!,
+          friends: [],
+          friendRequests: [],
         });
         setVerification({ ...verification, state: "success" });
         modalRef.current?.close();
         router.push("/user/posts");
+        setLoading(false);
       } else {
         setVerification({
           ...verification,
@@ -83,6 +88,7 @@ const SignUp = () => {
         state: "failed",
       });
     }
+    setLoading(false);
   };
 
   const closeModal = () => {
@@ -113,6 +119,7 @@ const SignUp = () => {
         emailAddress: form.email,
         username: form.username,
         password: form.password,
+        firstName: form.name,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
@@ -138,69 +145,79 @@ const SignUp = () => {
             "fixed z-50 w-[75%] h-[75%] bg-black backdrop:bg-background backdrop:bg-opacity-70 backdrop:blur-xl rounded-2xl border-2 border-accent shadow-secondary shadow-xl"
           }
         >
-          <div
-            className={
-              "flex flex-col w-full h-full justify-center items-center"
-            }
-          >
-            {/* HEADER */}
-            <h1
+          {loading ? (
+            <div
               className={
-                "text-5xl font-bold mt-8 bg-gradient-to-b to-primary from-text z-10 leading-normal bg-clip-text text-transparent"
+                "flex flex-col w-full h-full justify-center items-center"
               }
             >
-              Verify your Account
-            </h1>
-
-            <p className={"text-text mb-4"}>
-              We've sent an email to{" "}
-              <span className={"text-primary"}>{form.email}</span> enter the
-              code given below
-            </p>
-
-            <InputOTP
-              maxLength={6}
-              value={code}
-              onChange={(value) => {
-                setCode(value);
-                setVerification({
-                  ...verification,
-                  code: value,
-                });
-              }}
-              pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot className={"text-text"} index={0} />
-                <InputOTPSlot className={"text-text"} index={1} />
-                <InputOTPSlot className={"text-text"} index={2} />
-                <InputOTPSlot className={"text-text"} index={3} />
-                <InputOTPSlot className={"text-text"} index={4} />
-                <InputOTPSlot className={"text-text"} index={5} />
-              </InputOTPGroup>
-            </InputOTP>
-            {/* BUTTONS */}
-            <div className={"flex gap-2 items-center justify-center mt-4"}>
-              <button
-                className={
-                  "text-primary border-2 bg-gray-700 p-2 rounded-xl cursor-pointer border-transparent hover:border-accent flex items-center justify-center gap-2"
-                }
-                onClick={closeModal}
-              >
-                <CircleX className={"text-secondary"} />
-                <p className={"text-lg text-text"}>Cancel</p>
-              </button>
-              <button
-                className={
-                  " text-primary border-2 bg-primary p-2 rounded-xl cursor-pointer border-transparent hover:border-secondary flex items-center justify-center gap-2"
-                }
-                onClick={onPressVerify}
-              >
-                <BadgeCheck className={"text-secondary"} />
-                <p className={"text-lg text-text"}>Verify</p>
-              </button>
+              <Image src={Loader} alt={"Loading"} width={50} height={50} />
             </div>
-          </div>
+          ) : (
+            <div
+              className={
+                "flex flex-col w-full h-full justify-center items-center"
+              }
+            >
+              {/* HEADER */}
+              <h1
+                className={
+                  "text-5xl font-bold mt-8 bg-gradient-to-b to-primary from-text z-10 leading-normal bg-clip-text text-transparent"
+                }
+              >
+                Verify your Account
+              </h1>
+
+              <p className={"text-text mb-4"}>
+                We've sent an email to{" "}
+                <span className={"text-primary"}>{form.email}</span> enter the
+                code given below
+              </p>
+
+              <InputOTP
+                maxLength={6}
+                value={code}
+                onChange={(value) => {
+                  setCode(value);
+                  setVerification({
+                    ...verification,
+                    code: value,
+                  });
+                }}
+                pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot className={"text-text"} index={0} />
+                  <InputOTPSlot className={"text-text"} index={1} />
+                  <InputOTPSlot className={"text-text"} index={2} />
+                  <InputOTPSlot className={"text-text"} index={3} />
+                  <InputOTPSlot className={"text-text"} index={4} />
+                  <InputOTPSlot className={"text-text"} index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+              {/* BUTTONS */}
+              <div className={"flex gap-2 items-center justify-center mt-4"}>
+                <button
+                  className={
+                    "text-primary border-2 bg-gray-700 p-2 rounded-xl cursor-pointer border-transparent hover:border-accent flex items-center justify-center gap-2"
+                  }
+                  onClick={closeModal}
+                >
+                  <CircleX className={"text-secondary"} />
+                  <p className={"text-lg text-text"}>Cancel</p>
+                </button>
+                <button
+                  className={
+                    " text-primary border-2 bg-primary p-2 rounded-xl cursor-pointer border-transparent hover:border-secondary flex items-center justify-center gap-2"
+                  }
+                  onClick={onPressVerify}
+                >
+                  <BadgeCheck className={"text-secondary"} />
+                  <p className={"text-lg text-text"}>Verify</p>
+                </button>
+              </div>
+            </div>
+          )}
         </dialog>
       ) : null}
 
@@ -322,13 +339,19 @@ const SignUp = () => {
         <div className={"flex flex-col w-full gap-1"}>
           {/* MAIN SIGN UP BUTTON*/}
           <button
-            className={
-              " text-primary border-2 bg-primary p-2 rounded-xl cursor-pointer border-transparent hover:border-accent flex items-center justify-center gap-2"
-            }
+            className={`text-primary border-2 bg-primary p-2 rounded-xl border-transparent hover:border-accent flex items-center justify-center gap-2 transition duration-100 ${loading && "!bg-gray-700 bg-opacity-70"}`}
             onClick={onSignUpPress}
+            disabled={loading}
           >
-            <UserRoundPlus className={"text-secondary"} />
-            <p className={"text-lg text-text"}>Sign Up</p>
+            {loading ? (
+              <Image src={Loader} alt={"Loading"} width={30} height={30} />
+            ) : (
+              <UserRoundPlus className={"text-secondary"} />
+            )}
+
+            <p className={"text-lg text-text"}>
+              {loading ? "Signing up..." : "Sign Up"}
+            </p>
           </button>
 
           {/* DIVIDER */}
