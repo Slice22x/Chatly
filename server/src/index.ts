@@ -6,6 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 //ROUTES IMPORTS
 import userRoutes from "./routes/userRoutes";
+import chatRoutes from "./routes/chatRoutes";
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,7 @@ app.use(cors());
 
 // ROUTES
 app.use("/users", userRoutes);
+app.use("/chats", chatRoutes);
 
 // Set the port number for the server
 const port = Number(process.env.PORT) | 3000;

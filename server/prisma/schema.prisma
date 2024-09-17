@@ -14,15 +14,16 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  email    String   @unique
-  clerkId  String
-  name     String
-  username String
-  bio      String?
-  Posts    Posts?   @relation(fields: [postsId], references: [id])
-  postsId  String?  @db.ObjectId
-  friends  String[]
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  email          String   @unique
+  clerkId        String   @unique
+  name           String
+  username       String   @unique
+  bio            String?
+  Posts          Posts?   @relation(fields: [postsId], references: [id])
+  postsId        String?  @db.ObjectId
+  friends        Friend[]
+  friendRequests String[]
 }
 
 model Posts {
@@ -34,14 +35,20 @@ model Posts {
 }
 
 model ChatLogs {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  messages Message[]
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  betweenUser1 String
+  betweenUser2 String
+  messages     Message[]
 }
 
-model Message {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+type Message {
   senderId    String
   recipientId String
-  ChatLogs    ChatLogs? @relation(fields: [chatLogsId], references: [id])
-  chatLogsId  String?   @db.ObjectId
+  message     String
+}
+
+type Friend {
+  username String
+  name     String
+  clerkId  String
 }

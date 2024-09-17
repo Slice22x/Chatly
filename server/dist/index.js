@@ -11,6 +11,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 //ROUTES IMPORTS
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -22,6 +23,7 @@ app.use(body_parser_1.default.urlencoded({ extended: false }));
 app.use((0, cors_1.default)());
 // ROUTES
 app.use("/users", userRoutes_1.default);
+app.use("/chats", chatRoutes_1.default);
 // Set the port number for the server
 const port = Number(process.env.PORT) | 3000;
 app.listen(port, "0.0.0.0", () => {
