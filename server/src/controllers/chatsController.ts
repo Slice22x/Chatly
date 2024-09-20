@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const createChat = async (req: Request, res: Response) => {
   try {
-    const currentUserId = req.query.currentUser?.toString();
+    const currentUserId = req.query.currentUserId?.toString();
     const otherUser = req.query.otherUser?.toString();
     const otherUserId = await prisma.user.findUnique({
       where: { username: otherUser },

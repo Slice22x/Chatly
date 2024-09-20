@@ -15,7 +15,7 @@ const prisma = new client_1.PrismaClient();
 const createChat = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const currentUserId = (_a = req.query.currentUser) === null || _a === void 0 ? void 0 : _a.toString();
+        const currentUserId = (_a = req.query.currentUserId) === null || _a === void 0 ? void 0 : _a.toString();
         const otherUser = (_b = req.query.otherUser) === null || _b === void 0 ? void 0 : _b.toString();
         const otherUserId = yield prisma.user.findUnique({
             where: { username: otherUser },
