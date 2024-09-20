@@ -74,7 +74,7 @@ export const api = createApi({
     }),
 
     //   CHATS
-    createChat: build.query<
+    createChat: build.mutation<
       ChatLog,
       { currentUserId: string; otherUser: string }
     >({
@@ -86,7 +86,7 @@ export const api = createApi({
           otherUser: params.otherUser,
         },
       }),
-      providesTags: ["Chats"],
+      invalidatesTags: ["Chats"],
     }),
 
     getChats: build.query<ChatLog[], { currentUser: string }>({
@@ -94,6 +94,18 @@ export const api = createApi({
         url: "/chats",
         method: "GET",
         params: { currentUserId: id.currentUser },
+      }),
+      providesTags: ["Chats"],
+    }),
+
+    getChatsSpecific: build.query<
+      ChatLog[],
+      { currentUser: string; otherUser: string }
+    >({
+      query: (id) => ({
+        url: "/chats/specific",
+        method: "GET",
+        params: { currentUserId: id.currentUser, otherUser: id.otherUser },
       }),
       providesTags: ["Chats"],
     }),
@@ -117,7 +129,8 @@ export const {
   useCreateUsersMutation,
   useGetUsersQuery,
   useUpdateUsersMutation,
-  useCreateChatQuery,
+  useCreateChatMutation,
   useGetChatsQuery,
+  useGetChatsSpecificQuery,
   useUpdateChatMutation,
 } = api;

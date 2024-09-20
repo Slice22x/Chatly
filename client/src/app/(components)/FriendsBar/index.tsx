@@ -15,7 +15,11 @@ const FriendsBar = () => {
         <Loader scale={50} />
       ) : (
         thisUser![0].friends.map((friend) => (
-          <Friend username={friend.username} name={friend.name} />
+          <Friend
+            username={friend.username}
+            name={friend.name}
+            clerkId={friend.clerkId}
+          />
         ))
       )}
     </div>

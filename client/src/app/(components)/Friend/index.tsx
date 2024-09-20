@@ -8,15 +8,20 @@ type props = {
   username: string;
   picture?: React.ReactNode;
   name: string;
+  clerkId: string;
 };
 
-const Friend = ({ username, picture, name }: props) => {
-  const { selectedFriend, setSelectedFriend } = useFriendsContext();
+const Friend = ({ username, picture, name, clerkId }: props) => {
+  const {
+    selectedFriend,
+    setSelectedFriend,
+    selectedClerkId,
+    setSelectedClerkId,
+  } = useFriendsContext();
 
   const handleFriendPress = () => {
     setSelectedFriend(username);
-    console.log(selectedFriend);
-    console.log(selectedFriend === username && "border-accent");
+    setSelectedClerkId(clerkId);
   };
 
   return (

@@ -1,47 +1,74 @@
-import React from "react";
+import React, { useState } from "react";
 import { ArrowLeftFromLine, SendHorizonal, Star, Stars } from "lucide-react";
 import { useFriendsContext } from "@/app/(context)/FriendsProvider";
 import ChatBubble from "@/app/(components)/ChatBubble";
+import {
+  useCreateChatMutation,
+  useGetChatsQuery,
+  useGetChatsSpecificQuery,
+  useUpdateChatMutation,
+} from "@/state/api";
+import { useUser } from "@clerk/nextjs";
+import Loader from "@/app/(components)/Loader";
 
 type props = {
   name: string;
 };
 
-const messages = [
-  { sender: "zubair.m7", message: "Yo bro" },
-  /*
-  { sender: "zubair.m7", message: "Have you done the fm hw?" },
-  { sender: "davidu22x", message: "Yh man ofc" },
-  { sender: "zubair.m7", message: "Can u send it rq man" },
-  { sender: "davidu22x", message: "Nah man u gta do it urself g" },
-  { sender: "davidu22x", message: "Plus last time she clocked us" },
-  { sender: "zubair.m7", message: "This time I won't make it bait I promise" },
-  { sender: "davidu22x", message: "😮‍💨 fine then" },
-  { sender: "zubair.m7", message: "Tyty" },
-  {
-    sender: "zubair.m7",
-    message: "Trust me this time I'll make sure we don't get clocked",
-  },
-  { sender: "zubair.m7", message: "Yo bro" },
-  { sender: "zubair.m7", message: "Have you done the fm hw?" },
-  { sender: "davidu22x", message: "Yh man ofc" },
-  { sender: "zubair.m7", message: "Can u send it rq man" },
-  { sender: "davidu22x", message: "Nah man u gta do it urself g" },
-  { sender: "davidu22x", message: "Plus last time she clocked us" },
-  { sender: "zubair.m7", message: "This time I won't make it bait I promise" },
-  { sender: "davidu22x", message: "😮‍💨 fine then" },
-  { sender: "zubair.m7", message: "Tyty" },
-  {
-    sender: "zubair.m7",
-    message: "Trust me this time I'll make sure we don't get clocked",
-  },*/
-];
-
 const ChatArea = ({ name }: props) => {
-  const { selectedFriend, setSelectedFriend } = useFriendsContext();
+  const { user } = useUser();
+  const [message, setMessage] = useState<string>("");
+  const {
+    selectedFriend,
+    setSelectedFriend,
+    selectedClerkId,
+    setSelectedClerkId,
+  } = useFriendsContext();
+
+  const [updateMessage] = useUpdateChatMutation();
+
+  const { data: messages, isLoading } = useGetChatsSpecificQuery({
+    currentUser: user!.id,
+    otherUser: selectedFriend,
+  });
+
+  const [createChat] = useCreateChatMutation();
 
   const handleReturn = () => {
     setSelectedFriend("");
+    setSelectedClerkId("");
+  };
+
+  const handleSendMessage = () => {
+    if (messages!.length === 0) {
+      createChat({
+        currentUserId: user!.id,
+        otherUser: selectedFriend,
+      }).then(({ data }) => {
+        updateMessage({
+          chatId: data!.id,
+          currentUser: user!.id,
+          message: {
+            senderId: user!.id,
+            recipientId: selectedClerkId,
+            message: message,
+          },
+        });
+      });
+      setMessage("");
+      return;
+    }
+
+    updateMessage({
+      chatId: messages![0].id,
+      currentUser: user!.id,
+      message: {
+        senderId: user!.id,
+        recipientId: selectedClerkId,
+        message: message,
+      },
+    });
+    setMessage("");
   };
 
   return (
@@ -70,17 +97,29 @@ const ChatArea = ({ name }: props) => {
       <div className={"relative h-full flex flex-col"}>
         {/*CHAT AREA*/}
         <div
-          className={
-            "absolute h-full w-full flex-1 flex-col gap-2 mt-2 overflow-y-scroll no-scrollbar rounded-xl"
-          }
+          className={`absolute h-full w-full flex-1 flex-col gap-2 mt-2 overflow-y-scroll no-scrollbar rounded-xl ${isLoading && "flex items-center justify-center"}`}
         >
-          {messages.map((value, index) => (
-            <ChatBubble
-              sender={value.sender}
-              message={value.message}
-              key={index}
-            />
-          ))}
+          {isLoading ? (
+            <Loader scale={75} />
+          ) : messages!.length === 0 ? (
+            <div className={"w-full h-full flex items-center justify-center"}>
+              <h1
+                className={
+                  "text-2xl font-bold top-0 bg-gradient-to-b to-secondary from-primary z-10 leading-normal bg-clip-text text-transparent"
+                }
+              >
+                No messages between you? Start typing to get things rolling
+              </h1>
+            </div>
+          ) : (
+            messages![0].messages.map((message, index) => (
+              <ChatBubble
+                sender={message.senderId}
+                message={message.message}
+                key={index}
+              />
+            ))
+          )}
         </div>
       </div>
       {/* MESSAGE BOX */}
@@ -89,15 +128,20 @@ const ChatArea = ({ name }: props) => {
           <input
             className={"w-full bg-transparent text-text"}
             placeholder={"Message Goes Here..."}
+            value={message}
+            onChange={(e) => {
+              setMessage(e.target.value);
+            }}
           />
         </div>
-        <div
+        <button
           className={
             "rounded-xl p-2 bg-primary cursor-pointer border-2 border-transparent hover:border-accent"
           }
+          onClick={handleSendMessage}
         >
           <SendHorizonal />
-        </div>
+        </button>
         <div
           className={
             "rounded-xl p-2 bg-primary cursor-pointer border-2 border-transparent hover:border-accent"

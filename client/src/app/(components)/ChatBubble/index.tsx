@@ -7,14 +7,14 @@ type props = {
 };
 
 const ChatBubble = ({ sender, message }: props) => {
-  const { selectedFriend, setSelectedFriend } = useFriendsContext();
+  const { selectedFriend, selectedClerkId } = useFriendsContext();
 
   return (
     <div
-      className={`flex ${sender === selectedFriend ? "justify-start" : "justify-end"}`}
+      className={`flex ${sender === selectedClerkId ? "justify-start" : "justify-end"}`}
     >
       <div
-        className={`${sender === selectedFriend ? "bg-gray-700" : "bg-primary"} flex p-2 rounded-xl`}
+        className={`${sender === selectedClerkId ? "bg-gray-700" : "bg-primary"} flex p-2 rounded-xl`}
       >
         <p className={"text-text text-lg"}>{message}</p>
       </div>

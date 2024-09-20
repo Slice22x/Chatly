@@ -23,8 +23,8 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import Loader from "@/assets/tube-spinner.svg";
 import { useCreateUsersMutation } from "@/state/api";
+import Loader from "@/app/(components)/Loader";
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -66,13 +66,13 @@ const SignUp = () => {
           email: form.email,
           username: form.username,
           bio: "",
-          clerkId: completeSignUp.id!,
+          clerkId: completeSignUp.createdUserId!,
           friends: [],
           friendRequests: [],
         });
         setVerification({ ...verification, state: "success" });
         modalRef.current?.close();
-        router.push("/user/posts");
+        router.push("/user/profile");
         setLoading(false);
       } else {
         setVerification({
@@ -151,7 +151,7 @@ const SignUp = () => {
                 "flex flex-col w-full h-full justify-center items-center"
               }
             >
-              <Image src={Loader} alt={"Loading"} width={50} height={50} />
+              <Loader scale={50} />
             </div>
           ) : (
             <div
@@ -344,7 +344,7 @@ const SignUp = () => {
             disabled={loading}
           >
             {loading ? (
-              <Image src={Loader} alt={"Loading"} width={30} height={30} />
+              <Loader scale={30} />
             ) : (
               <UserRoundPlus className={"text-secondary"} />
             )}
